@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Оплата по договору</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h2>Загрузка договора и автоматическое заполнение реквизитов</h2>
+
+<form method="POST" enctype="multipart/form-data" class="upload-box">
+    <input type="file" name="pdf" required>
+    <button type="submit">Загрузить и распознать</button>
+</form>
+
+{% if info %}
+<hr>
+
+<h3>Платёжные реквизиты</h3>
+
+<form>
+    <label>Организация:</label>
+    <input type="text" value="{{ info.name }}">
+
+    <label>ИНН:</label>
+    <input type="text" value="{{ info.inn }}">
+
+    <label>КПП:</label>
+    <input type="text" value="{{ info.kpp }}">
+
+    <label>ОГРН:</label>
+    <input type="text" value="{{ info.ogrn }}">
+
+    <label>БИК:</label>
+    <input type="text" value="{{ info.bik }}">
+
+    <label>Расчетный счет (р/с):</label>
+    <input type="text" value="{{ info.rs }}">
+
+    <label>Корр. счёт (к/с):</label>
+    <input type="text" value="{{ info.ks }}">
+
+    <label>Сумма платежа:</label>
+    <input type="text" placeholder="Введите сумму">
+
+    <button>Оплатить</button>
+</form>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
