@@ -1,26 +1,20 @@
 import re
 from pdfminer.high_level import extract_text
 
-# ==========================
-# 字段名
-# ==========================
+
 COLUMNS = [
     "Файл","Наименование организации","ИНН","КПП","ОГРН",
     "БИК","Расчетный счет (р/с)",
     "Корреспондентский счет (к/с)"
 ]
 
-# ==========================
-# 锚点：定位“付款信息区域”
-# ==========================
+
 ANCHORS = [
     r"Реквизиты", r"Банковские\s+реквизиты",
     r"Реквизиты\s+и\s+подписи", r"Исполнитель", r"Платежные\s+реквизиты"
 ]
 
-# ==========================
-# 正则模板
-# ==========================
+
 RE_PAT = {
      "name": (
         r"(?:Исполнитель[:\-\s]*)?"
@@ -37,18 +31,14 @@ RE_PAT = {
     "ks":   r"(?:к/с|Корр\.?\s*счет)[^\d]*([0-9]{20})"
 }
 
-# ==========================
-# PDF 读取文本
-# ==========================
+
 def read_pdf(path):
     text = extract_text(path) or ""
     text = text.replace("\u00A0"," ").replace("–","-").replace("—","-")
     text = re.sub(r"[ \t]+"," ", text)
     return text
 
-# ==========================
-# 查找包含银行信息的文本区域
-# ==========================
+
 def find_blocks(text, win=40):
     lines = text.splitlines()
     blocks = []
@@ -59,9 +49,7 @@ def find_blocks(text, win=40):
     blocks.append(text)
     return blocks
 
-# ==========================
-# 安全提取正则分组
-# ==========================
+
 def first_group(match):
     if not match:
         return None
@@ -72,9 +60,6 @@ def first_group(match):
                 return val.strip()
     return match.group(0).strip()
 
-# ==========================
-# 从文本块中提取字段
-# ==========================
 def extract_from_block(block):
     out = {}
     m = re.search(RE_PAT["name"], block, re.IGNORECASE)
@@ -84,9 +69,7 @@ def extract_from_block(block):
         out[key] = first_group(m)
     return out
 
-# ==========================
-# 评分：用于选择最完整的一段
-# ==========================
+
 def score(rec):
     sc = 0
     if rec["name"]: sc += 2
@@ -97,9 +80,7 @@ def score(rec):
     if rec["ks"] and rec["ks"].isdigit() and len(rec["ks"]) == 20: sc += 1
     return sc
 
-# ==========================
-# 对外接口函数：输入 PDF 文件 → 返回收款人信息
-# ==========================
+
 def extract_payment_info(pdf_path):
     text = read_pdf(pdf_path)
 
